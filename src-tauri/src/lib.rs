@@ -220,10 +220,16 @@ fn linux_scan_note(interface_count: usize) -> Option<String> {
 
     if hidraw_nodes > 0 {
         Some(format!(
-            "Linux has {hidraw_nodes} hidraw node(s), but HIDAPI returned no interfaces. Check device permissions/udev rules if this persists."
+            concat!(
+                "Linux has {hidraw_nodes} hidraw node(s), but HIDAPI returned no interfaces. ",
+                "Check device permissions/udev rules if this persists."
+            )
         ))
     } else {
-        Some("No HID interfaces were discovered. Connect a keyboard or mouse and scan again.".into())
+        Some(
+            "No HID interfaces were discovered. Connect a keyboard or mouse and scan again."
+                .into(),
+        )
     }
 }
 
@@ -388,7 +394,9 @@ fn driver_catalog() -> Vec<DriverDescriptor> {
             support_level: "foundation".into(),
             read_capabilities: vec!["identify".into(), "interfaces".into(), "diagnostics".into()],
             write_capabilities: vec![],
-            notes: "Model-specific write operations stay disabled until exact tested reports are documented.".into(),
+            notes:
+                "Model-specific write operations stay disabled until exact tested reports are documented."
+                    .into(),
         },
         DriverDescriptor {
             id: "glorious-model-o".into(),
@@ -398,7 +406,9 @@ fn driver_catalog() -> Vec<DriverDescriptor> {
             support_level: "foundation".into(),
             read_capabilities: vec!["identify".into(), "interfaces".into(), "diagnostics".into()],
             write_capabilities: vec![],
-            notes: "Exact revisions must be tested before DPI, polling, debounce, or lighting writes are enabled.".into(),
+            notes:
+                "Exact revisions must be tested before DPI, polling, debounce, or lighting writes are enabled."
+                    .into(),
         },
     ]
 }
@@ -410,7 +420,10 @@ fn app_info() -> serde_json::Value {
         "version": env!("CARGO_PKG_VERSION"),
         "platform": std::env::consts::OS,
         "arch": std::env::consts::ARCH,
-        "phase": "Driver catalog, polished device workflow, portable profiles and safe HID discovery",
+        "phase": concat!(
+            "Driver catalog, polished device workflow, portable profiles ",
+            "and safe HID discovery"
+        ),
         "supportedPlatforms": ["windows", "linux", "macos"],
         "driverCount": 3,
         "hardwareWritesEnabled": false
