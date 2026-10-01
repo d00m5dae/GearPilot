@@ -1,5 +1,7 @@
 # GearPilot
 
+[![Quality checks](https://github.com/d00m5dae/GearPilot/actions/workflows/ci.yml/badge.svg)](https://github.com/d00m5dae/GearPilot/actions/workflows/ci.yml)
+
 **One app for your keyboards, mice, and gaming peripherals.**
 
 GearPilot is an open-source desktop peripheral control project for **Windows, Linux, and macOS**. The long-term goal is to replace the pile of brand-specific utilities with one clean app for device discovery, profiles, remapping, performance settings, lighting, diagnostics, and model-specific controls.
