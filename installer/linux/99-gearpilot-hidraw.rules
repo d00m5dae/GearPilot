@@ -1,0 +1,4 @@
+# GearPilot: allow the active local desktop session to access HIDRAW devices.
+# TAG+="uaccess" is intentionally used instead of MODE="0666" so access is
+# granted to the logged-in seat user rather than every account on the system.
+SUBSYSTEM=="hidraw", TAG+="uaccess"

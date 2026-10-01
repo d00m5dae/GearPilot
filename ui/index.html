@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>GearPilot</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <button class="logo nav active" data-view="devices">G</button>
+    <button class="nav" data-view="devices" title="Devices">⌨</button>
+    <button class="nav" data-view="profiles" title="Profiles">▱</button>
+    <button class="nav" data-view="tester" title="Input tester">⌁</button>
+    <button class="nav" data-view="drivers" title="Drivers">⌘</button>
+    <div class="grow"></div>
+    <button class="nav" data-view="settings" title="Settings">⚙</button>
+  </aside>
+
+  <aside class="devices-panel">
+    <div class="side-title"><div><small>GEARPILOT</small><h1>Devices</h1></div><button id="scanSmall" class="icon">↻</button></div>
+    <input id="search" class="search" placeholder="Find a device">
+    <div class="filters"><button class="chip active" data-kind="all">All</button><button class="chip" data-kind="keyboard">Keyboards</button><button class="chip" data-kind="mouse">Mice</button></div>
+    <div id="deviceList" class="device-list"></div>
+    <div class="side-footer"><button id="demo" class="link">Preview demo device</button><span id="scanState"><i></i> Ready</span></div>
+  </aside>
+
+  <main>
+    <header><div><small id="eyebrow">DEVICE</small><h2 id="title">Device workspace</h2></div><div class="header-actions"><button id="backup" class="btn secondary">Backup</button><button id="scan" class="btn primary">Scan</button></div></header>
+    <div id="toast" class="toast"></div>
+
+    <section id="devices" class="view active">
+      <div id="empty" class="empty"><div class="empty-icon">⌨</div><small>NO DEVICE SELECTED</small><h2>Connect a keyboard or mouse</h2><p>GearPilot identifies standard HID devices without changing their settings.</p><button class="btn primary" id="emptyScan">Scan devices</button></div>
+      <div id="workspace" class="hidden">
+        <section class="hero panel"><div><small id="deviceVendor">PERIPHERAL</small><h2 id="deviceName">Device</h2><p id="deviceMeta"></p><div id="badges" class="badges"></div></div><div id="deviceArt" class="device-art"></div></section>
+        <div class="tabs"><button class="tab active" data-tab="overview">Overview</button><button class="tab" data-tab="performance">Performance</button><button class="tab" data-tab="lighting">Lighting</button><button class="tab" data-tab="diagnostics">Diagnostics</button></div>
+        <div id="tab-overview" class="tabpane active"><div class="grid two"><section class="panel card"><small>ACTIVE PROFILE</small><h3 id="activeProfileName">Everyday</h3><p id="activeProfileSummary">Portable software profile</p><button class="link jump" data-view="profiles">Manage profiles →</button></section><section class="panel card"><small>SUPPORT</small><h3 id="supportTitle">Inspect only</h3><div id="supportList" class="support-list"></div></section></div></div>
+        <div id="tab-performance" class="tabpane"><div class="grid two"><label class="panel setting"><span><small>DPI TARGET</small><b id="dpiValue">1400 DPI</b></span><input id="dpi" type="range" min="200" max="6400" step="100" value="1400"></label><label class="panel setting"><span><small>POLLING TARGET</small><b id="pollValue">250 Hz</b></span><select id="poll"><option>125</option><option selected>250</option><option>500</option><option>1000</option></select></label></div><div class="notice">Hardware writes are locked in v0.5. These values are stored as profile intent until an exact tested driver supports them.</div></div>
+        <div id="tab-lighting" class="tabpane"><section class="panel lighting"><div id="lightPreview" class="light-preview"></div><div><small>PROFILE LIGHTING</small><h3>Scene preview</h3><label>Effect<select id="effect"><option>Solid</option><option>Breathing</option><option>Wave</option><option>Reactive</option><option>Off</option></select></label><label>Color<input id="color" type="color" value="#5ea0ff"></label><label>Brightness<input id="brightness" type="range" min="0" max="100" value="80"></label></div></section></div>
+        <div id="tab-diagnostics" class="tabpane"><section class="panel card"><div class="row"><div><small>DEVICE REPORT</small><h3>Safe diagnostics</h3></div><button id="copyDiag" class="btn secondary">Copy</button></div><pre id="diag"></pre></section></div>
+      </div>
+    </section>
+
+    <section id="profiles" class="view"><div class="page-heading"><small>PROFILES</small><h2>Portable settings</h2><p>Profiles describe what you want; device drivers decide what can actually be applied.</p></div><div class="preset-row"><button class="preset" data-preset="fps"><b>FPS Gaming</b><span>1400 DPI · 1000 Hz target</span></button><button class="preset" data-preset="everyday"><b>Everyday</b><span>1400 DPI · 250 Hz target</span></button><button class="preset" data-preset="low"><b>Low Power</b><span>800 DPI · 125 Hz target</span></button></div><div id="profileList" class="profile-list"></div></section>
+
+    <section id="tester" class="view"><div class="page-heading"><small>INPUT TESTER</small><h2>See what the OS receives</h2><p>No remapping or vendor packets—just browser input events.</p></div><div class="grid two"><section class="panel tester" tabindex="0" id="keyTester"><small>KEYBOARD</small><h3>Press any key</h3><div id="lastKey" class="big-readout">—</div><span id="keyCount">0 events</span></section><section class="panel tester" id="mouseTester"><small>MOUSE</small><h3>Click or scroll here</h3><div class="mouse"><span id="leftBtn">L</span><span id="middleBtn">M</span><span id="rightBtn">R</span></div><span id="mouseCount">0 events</span></section></div><div id="eventLog" class="panel log"></div></section>
+
+    <section id="drivers" class="view"><div class="page-heading"><small>DRIVER CENTER</small><h2>Support that fails closed</h2><p>Controls only unlock when the backend advertises an exact capability.</p></div><div id="driverList" class="driver-grid"></div></section>
+
+    <section id="settings" class="view"><div class="page-heading"><small>SETTINGS</small><h2>GearPilot preferences</h2></div><div class="settings-list"><label class="panel setting-row"><span><b>Auto scan</b><small>Look for newly connected peripherals.</small></span><select id="autoScan"><option value="0">Off</option><option value="5">5 seconds</option><option value="10">10 seconds</option><option value="30">30 seconds</option></select></label><label class="panel setting-row"><span><b>Safe mode</b><small>Keep future hardware writes disabled by default.</small></span><input id="safeMode" type="checkbox" checked></label><label class="panel setting-row"><span><b>Accent</b><small>Choose a highlight color.</small></span><select id="accent"><option value="blue">Blue</option><option value="green">Green</option><option value="gold">Gold</option><option value="violet">Violet</option></select></label><div class="panel setting-row"><span><b>Runtime</b><small id="runtime">GearPilot 0.5.0</small></span><span class="badge locked">Writes locked</span></div></div></section>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

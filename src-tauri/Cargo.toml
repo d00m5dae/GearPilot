@@ -1,0 +1,28 @@
+[package]
+name = "gearpilot"
+version = "0.5.0"
+description = "Universal peripheral control app for Windows, Linux, and macOS"
+authors = ["d00m5dae"]
+license = "MIT"
+repository = "https://github.com/d00m5dae/gearpilot"
+homepage = "https://github.com/d00m5dae/gearpilot"
+edition = "2021"
+
+[lib]
+name = "gearpilot_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "gearpilot"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2.5", features = [] }
+
+[dependencies]
+tauri = { version = "2.12", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[target.'cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))'.dependencies]
+hidapi = "2.6.7"

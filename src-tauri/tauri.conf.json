@@ -1,0 +1,65 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "GearPilot",
+  "version": "0.5.0",
+  "identifier": "dev.d00m5dae.gearpilot",
+  "build": {
+    "frontendDist": "../ui"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "GearPilot",
+        "width": 1320,
+        "height": 820,
+        "minWidth": 780,
+        "minHeight": 620,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Utility",
+    "publisher": "d00m5dae",
+    "homepage": "https://github.com/d00m5dae/gearpilot",
+    "shortDescription": "One control panel for keyboards, mice, and gaming peripherals.",
+    "longDescription": "GearPilot is a cross-platform peripheral control utility for Windows, Linux, and macOS with portable profiles, diagnostics, remapping intent, lighting scenes, and model-specific drivers.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico",
+      "icons/icon.icns"
+    ],
+    "windows": {
+      "allowDowngrades": false,
+      "bundleVCRuntime": true,
+      "nsis": {
+        "installMode": "currentUser",
+        "installerIcon": "icons/icon.ico",
+        "uninstallerIcon": "icons/icon.ico",
+        "startMenuFolder": "GearPilot"
+      }
+    },
+    "linux": {
+      "deb": {
+        "files": {
+          "/usr/lib/udev/rules.d/99-gearpilot-hidraw.rules": "../installer/linux/99-gearpilot-hidraw.rules"
+        },
+        "postInstallScript": "../installer/linux/postinst",
+        "postRemoveScript": "../installer/linux/postrm"
+      }
+    },
+    "macOS": {
+      "minimumSystemVersion": "11.0"
+    },
+    "license": "MIT"
+  }
+}

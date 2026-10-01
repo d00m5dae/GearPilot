@@ -1,0 +1,36 @@
+name: Device support request
+description: Request support for a keyboard, mouse, keypad, or other HID device
+title: "[Device] "
+labels: [device-support]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: Exact manufacturer and model
+      placeholder: Glorious Model O
+    validations: {required: true}
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system used for testing
+      options: [Windows, Linux, macOS]
+    validations: {required: true}
+  - type: input
+    id: vidpid
+    attributes:
+      label: VID/PID
+      placeholder: "0x258A:0x...."
+    validations: {required: true}
+  - type: textarea
+    id: report
+    attributes:
+      label: GearPilot device report
+      description: Export a report from Diagnostics and remove/private-field data before posting.
+    validations: {required: true}
+  - type: checkboxes
+    id: ownership
+    attributes:
+      label: Hardware access
+      options:
+        - label: I own or have permission to test this device.
+          required: true

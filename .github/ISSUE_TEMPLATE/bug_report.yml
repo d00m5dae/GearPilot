@@ -1,0 +1,33 @@
+name: Bug report
+description: Something in GearPilot is broken
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [Windows, Linux, macOS]
+    validations: {required: true}
+  - type: input
+    id: version
+    attributes:
+      label: GearPilot version
+      placeholder: 0.5.0
+    validations: {required: true}
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Include clear steps to reproduce the problem.
+    validations: {required: true}
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations: {required: true}
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: Paste privacy-safe diagnostics. Do not publish serial numbers or HID paths.

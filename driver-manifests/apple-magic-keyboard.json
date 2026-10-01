@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 2,
+  "id": "apple-magic-keyboard",
+  "status": "foundation",
+  "vendor": "Apple",
+  "vendorId": "0x05AC",
+  "family": "Magic Keyboard",
+  "match": {
+    "productNameContains": ["Magic Keyboard"],
+    "productIds": []
+  },
+  "readCapabilities": ["identify", "interfaces", "diagnostics"],
+  "writeCapabilities": [],
+  "notes": "Add exact tested product IDs/revisions before enabling model-specific writes."
+}

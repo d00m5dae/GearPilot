@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 2,
+  "id": "glorious-model-o",
+  "status": "foundation",
+  "vendor": "Glorious",
+  "vendorId": "0x258A",
+  "family": "Model O",
+  "match": {
+    "identityContains": ["Glorious", "Model O"],
+    "productIds": []
+  },
+  "readCapabilities": ["identify", "interfaces", "diagnostics"],
+  "writeCapabilities": [],
+  "notes": "Do not assume every device using VID 0x258A shares a protocol. Add exact tested revisions before writes."
+}

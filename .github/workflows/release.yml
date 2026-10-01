@@ -1,0 +1,143 @@
+name: Build installers
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux x64
+            os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            bundles: deb,appimage
+            artifact: gearpilot-linux-x64
+          - name: Windows x64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bundles: nsis,msi
+            artifact: gearpilot-windows-x64
+          - name: macOS Universal
+            os: macos-latest
+            target: universal-apple-darwin
+            bundles: dmg
+            artifact: gearpilot-macos-universal
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            libudev-dev \
+            patchelf \
+            xdg-utils
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target == 'universal-apple-darwin' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.target }}
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version '^2' --locked
+
+      - name: Generate platform icons
+        working-directory: src-tauri
+        run: cargo tauri icon ../assets/gearpilot-icon.svg
+
+      - name: Validate source
+        shell: bash
+        run: |
+          node scripts/validate.mjs
+
+      - name: Build installers
+        working-directory: src-tauri
+        run: cargo tauri build --target ${{ matrix.target }} --bundles ${{ matrix.bundles }} --ci --no-sign
+
+      - name: Stage Linux bundles
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          mkdir -p release
+          find src-tauri/target/${{ matrix.target }}/release/bundle -type f \
+            \( -name '*.deb' -o -name '*.AppImage' \) -exec cp {} release/ \;
+
+      - name: Stage Windows bundles
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          Get-ChildItem -Path "src-tauri/target/${{ matrix.target }}/release/bundle" -Recurse -File |
+            Where-Object { $_.Extension -in '.exe','.msi' } |
+            Copy-Item -Destination release
+
+      - name: Stage macOS bundle
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p release
+          find src-tauri/target/${{ matrix.target }}/release/bundle -type f -name '*.dmg' -exec cp {} release/ \;
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: release/*
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all installers
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+          merge-multiple: true
+
+      - name: Generate SHA256 checksums
+        shell: bash
+        run: |
+          cd release
+          sha256sum * > SHA256SUMS.txt
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: true
+          body: |
+            ## Install GearPilot
+
+            **Windows:** download the `setup.exe` build and double-click it.
+
+            **Linux Mint / Ubuntu / Debian:** download the `.deb` and double-click it. The package also installs GearPilot's HID device-access rule.
+
+            **Other Linux desktops:** use the `.AppImage` build.
+
+            **macOS:** download the `.dmg`, open it, and drag GearPilot into Applications.
+
+            > These CI builds are unsigned until project signing certificates are configured. Windows SmartScreen and macOS Gatekeeper may warn about unsigned prerelease builds.
