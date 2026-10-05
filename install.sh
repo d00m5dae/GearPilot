@@ -19,36 +19,80 @@ command -v python3 >/dev/null 2>&1 || die "python3 is required."
 
 case "$(uname -m)" in
   x86_64|amd64) ;;
-  *) die "The current Linux release is x86_64 only. Your machine reports $(uname -m)." ;;
+  *) die "The current Linux build is x86_64 only. Your machine reports $(uname -m)." ;;
 esac
 
-say "Finding the newest Linux release…"
-release_json="$(curl -fsSL -H 'Accept: application/vnd.github+json' "https://api.github.com/repos/$REPO/releases/latest")" ||   die "Could not read the latest GitHub release."
+mkdir -p "$APP_DIR" "$BIN_DIR" "$DESKTOP_DIR" "$ICON_DIR"
 
-asset_url="$(
-  printf '%s' "$release_json" | python3 -c '
+install_release() {
+  local release_json asset_url tmp
+  release_json="$(curl -fsSL -H 'Accept: application/vnd.github+json' "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null)" || return 1
+  asset_url="$(
+    printf '%s' "$release_json" | python3 -c '
 import json,sys
 data=json.load(sys.stdin)
 for asset in data.get("assets", []):
-    url=asset.get("browser_download_url", "")
     name=asset.get("name", "")
     if name.endswith(".AppImage"):
-        print(url)
+        print(asset.get("browser_download_url", ""))
         break
 '
-)"
+  )"
+  [[ -n "$asset_url" ]] || return 1
+  tmp="$(mktemp)"
+  trap 'rm -f "$tmp"' RETURN
+  say "Downloading the newest GearPilot release…"
+  curl -fL --progress-bar "$asset_url" -o "$tmp"
+  install -m 0755 "$tmp" "$APPIMAGE"
+}
 
-[[ -n "$asset_url" ]] || die "The latest release does not contain a Linux AppImage yet."
+build_from_source() {
+  command -v git >/dev/null 2>&1 || die "git is required when no prebuilt release is available."
+  command -v sudo >/dev/null 2>&1 || die "sudo is required to install build dependencies."
 
-mkdir -p "$APP_DIR" "$BIN_DIR" "$DESKTOP_DIR" "$ICON_DIR"
-tmp="$(mktemp)"
-trap 'rm -f "$tmp"' EXIT
+  if command -v apt-get >/dev/null 2>&1; then
+    say "No prebuilt release found. Installing build dependencies…"
+    sudo apt-get update
+    sudo apt-get install -y \
+      build-essential curl wget file git \
+      libwebkit2gtk-4.1-dev libxdo-dev libssl-dev \
+      libayatana-appindicator3-dev librsvg2-dev libudev-dev
+  else
+    die "No prebuilt release exists yet and automatic source builds currently support Debian/Ubuntu/Mint only."
+  fi
 
-say "Downloading GearPilot…"
-curl -fL --progress-bar "$asset_url" -o "$tmp"
-install -m 0755 "$tmp" "$APPIMAGE"
+  if ! command -v cargo >/dev/null 2>&1; then
+    say "Installing Rust…"
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    # shellcheck disable=SC1091
+    source "$HOME/.cargo/env"
+  fi
 
-say "Installing launcher…"
+  if ! command -v cargo-tauri >/dev/null 2>&1; then
+    say "Installing the Tauri build tool…"
+    cargo install tauri-cli --version '^2' --locked
+  fi
+
+  local src
+  src="$(mktemp -d)"
+  trap 'rm -rf "$src"' RETURN
+  say "Building GearPilot…"
+  git clone --depth 1 "https://github.com/$REPO.git" "$src/GearPilot"
+  (
+    cd "$src/GearPilot/src-tauri"
+    cargo tauri icon ../assets/gearpilot-icon.svg
+    cargo tauri build --bundles appimage
+  )
+
+  local built
+  built="$(find "$src/GearPilot/src-tauri/target/release/bundle/appimage" -maxdepth 1 -type f -name '*.AppImage' | head -n 1)"
+  [[ -n "$built" ]] || die "The source build finished without producing an AppImage."
+  install -m 0755 "$built" "$APPIMAGE"
+}
+
+say "Installing GearPilot…"
+install_release || build_from_source
+
 cat > "$LAUNCHER" <<EOF
 #!/usr/bin/env bash
 exec "$APPIMAGE" "\$@"
@@ -89,9 +133,8 @@ case ":$PATH:" in
     if [[ ! -f "$profile" ]] || ! grep -Fqx "$line" "$profile"; then
       printf '\n%s\n' "$line" >> "$profile"
     fi
-    export PATH="$BIN_DIR:$PATH"
     ;;
 esac
 
 say "Installed."
-printf '\nOpen it from your app menu as “GearPilot”, or run:\n\n  gearpilot\n\n'
+printf '\nOpen GearPilot from your app menu, or run:\n\n  gearpilot\n\n'
