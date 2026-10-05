@@ -35,6 +35,14 @@ A keyboard or mouse should not become harder to configure just because you switc
 
 Normal users should **not** install Rust, Cargo, Node, or Tauri.
 
+### Linux: one command
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/d00m5dae/GearPilot/main/install.sh | bash
+```
+
+That installs the latest GearPilot AppImage for your user, adds a `gearpilot` terminal command, and creates a **GearPilot** entry in your desktop application menu.
+
 | Platform | Download | Install |
 | --- | --- | --- |
 | Windows | `GearPilot_*_x64-setup.exe` | Double-click the setup file |

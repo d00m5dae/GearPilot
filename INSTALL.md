@@ -11,12 +11,26 @@ GearPilot is intended to install like any normal gaming utility. **End users do 
 The prerelease CI builds are unsigned, so Windows may show a SmartScreen warning until code signing is configured.
 
 ## Linux Mint / Ubuntu / Debian
-1. Download the `.deb` from the latest release.
-2. Double-click it in your file manager.
-3. Choose **Install**.
-4. Launch GearPilot from the applications menu.
 
-The package installs GearPilot's hidraw access rule using `TAG+="uaccess"` and reloads udev. It does not make HID devices world-writable.
+### Easiest install
+
+Run:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/d00m5dae/GearPilot/main/install.sh | bash
+```
+
+The installer downloads the newest AppImage into your user account, creates `~/.local/bin/gearpilot`, and adds a desktop launcher under `~/.local/share/applications`. Afterward you can either search for **GearPilot** in your app menu or run:
+
+```bash
+gearpilot
+```
+
+If your current shell did not already include `~/.local/bin` in `PATH`, open a new terminal once after installation.
+
+### Debian package
+
+You can still download the `.deb` from the latest release and install it normally. The Debian package additionally installs GearPilot's hidraw access rule using `TAG+="uaccess"` and reloads udev. It does not make HID devices world-writable.
 
 ## Other Linux desktops
 Use the `.AppImage` build. Some distributions may require marking the file executable before launch.
