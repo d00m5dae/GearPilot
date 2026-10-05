@@ -10,7 +10,8 @@
 <body>
 <div class="shell">
   <aside class="rail">
-    <button class="logo nav active" data-view="devices">G</button>
+    <button class="logo nav active" data-view="dashboard" title="GearPilot home">G</button>
+    <button class="nav" data-view="dashboard" title="Dashboard">⌂</button>
     <button class="nav" data-view="devices" title="Devices">⌨</button>
     <button class="nav" data-view="profiles" title="Profiles">▱</button>
     <button class="nav" data-view="tester" title="Input tester">⌁</button>
@@ -28,10 +29,24 @@
   </aside>
 
   <main>
-    <header><div><small id="eyebrow">DEVICE</small><h2 id="title">Device workspace</h2></div><div class="header-actions"><button id="backup" class="btn secondary">Backup</button><button id="scan" class="btn primary">Scan</button></div></header>
+    <header><div><small id="eyebrow">GEARPILOT</small><h2 id="title">Dashboard</h2></div><div class="header-actions"><button id="backup" class="btn secondary">Backup</button><button id="scan" class="btn primary">Scan</button></div></header>
     <div id="toast" class="toast"></div>
 
-    <section id="devices" class="view active">
+    <section id="dashboard" class="view active">
+      <div class="page-heading dashboard-heading"><small>GEARPILOT</small><h2>Your peripherals, one cockpit.</h2><p>See what is connected, jump into a device, test inputs, and manage portable profiles without digging through vendor utilities.</p></div>
+      <div class="dashboard-grid">
+        <section class="panel stat-card"><small>CONNECTED</small><strong id="dashDeviceCount">0</strong><span id="dashDeviceText">No devices detected</span></section>
+        <section class="panel stat-card"><small>ACTIVE PROFILE</small><strong id="dashProfile">Everyday</strong><span id="dashProfileMeta">1400 DPI · 250 Hz</span></section>
+        <section class="panel stat-card"><small>SAFETY</small><strong>Protected</strong><span>Unsupported hardware writes stay locked</span></section>
+      </div>
+      <section class="panel dashboard-main">
+        <div><small>QUICK START</small><h3>Ready when your gear is.</h3><p>Scan for hardware, open the selected device, or test keyboard and mouse input.</p></div>
+        <div class="quick-actions"><button id="dashScan" class="btn primary">Scan devices</button><button class="btn secondary jump" data-view="devices">Open devices</button><button class="btn secondary jump" data-view="tester">Input tester</button></div>
+      </section>
+      <section class="panel recent-panel"><div class="row"><div><small>DEVICE STATUS</small><h3 id="dashSelected">Nothing selected</h3></div><span id="dashStatus" class="badge">Waiting for scan</span></div><p id="dashSelectedMeta">Connect a keyboard or mouse and GearPilot will identify it safely.</p></section>
+    </section>
+
+    <section id="devices" class="view">
       <div id="empty" class="empty"><div class="empty-icon">⌨</div><small>NO DEVICE SELECTED</small><h2>Connect a keyboard or mouse</h2><p>GearPilot identifies standard HID devices without changing their settings.</p><button class="btn primary" id="emptyScan">Scan devices</button></div>
       <div id="workspace" class="hidden">
         <section class="hero panel"><div><small id="deviceVendor">PERIPHERAL</small><h2 id="deviceName">Device</h2><p id="deviceMeta"></p><div id="badges" class="badges"></div></div><div id="deviceArt" class="device-art"></div></section>
